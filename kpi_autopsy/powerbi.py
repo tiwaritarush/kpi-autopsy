@@ -71,9 +71,9 @@ def field(table: str, name: str, *, measure: bool = False) -> dict:
     }
 
 
-def visual(name: str, kind: str, title: str, position: tuple, roles: dict) -> dict:
+def visual(name: str, kind: str, title: str, position: tuple, roles: dict, sort: list[dict] | None = None) -> dict:
     x, y, width, height = position
-    return {
+    result = {
         "$schema": REPORT_SCHEMA + "visualContainer/1.0.0/schema.json",
         "name": name, "position": {"x": x, "y": y, "z": 0, "width": width, "height": height, "tabOrder": y + x / 10000},
         "visual": {
@@ -87,6 +87,12 @@ def visual(name: str, kind: str, title: str, position: tuple, roles: dict) -> di
             },
         },
     }
+    if sort:
+        result["visual"]["query"]["sortDefinition"] = {
+            "sort": [{"field": binding, "direction": "Ascending"} for binding in sort],
+            "isDefaultSort": False,
+        }
+    return result
 
 
 def textbox(name: str, title: str, subtitle: str, y: int = 16) -> dict:
@@ -100,30 +106,39 @@ def textbox(name: str, title: str, subtitle: str, y: int = 16) -> dict:
     return result
 
 
-def model_table(name: str, filename: str, types: dict, folder: Path) -> dict:
+def model_table(name: str, filename: str, types: dict, folder: Path, data_url: str | None = None) -> dict:
     with (folder / filename).open(newline="", encoding="utf-8") as stream:
         headers = next(csv.reader(stream))
     type_map = {"string": "type text", "int64": "Int64.Type", "double": "type number"}
     conversions = ", ".join('{"' + header + '", ' + type_map[types.get(header, "string")] + '}' for header in headers)
+    source = f'File.Contents(DataFolder & "/{filename}")'
+    if data_url is not None:
+        source = f'Binary.Decompress(Web.Contents(DataUrl, [RelativePath="{filename}.gz"]), Compression.GZip)'
     query = [
         "let",
-        f'    Source = Csv.Document(File.Contents(DataFolder & "/{filename}"), [Delimiter=",", Columns={len(headers)}, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),',
+        f'    Source = Csv.Document({source}, [Delimiter=",", Columns={len(headers)}, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),',
         "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
         '    EmptyToNull = Table.ReplaceValue(Headers, "", null, Replacer.ReplaceValue, Table.ColumnNames(Headers)),',
         f'    Typed = Table.TransformColumnTypes(EmptyToNull, {{{conversions}}}, "en-US")',
         "in Typed",
     ]
+    columns = []
+    for header in headers:
+        data_type = types.get(header, "string")
+        column = {"name": header, "dataType": data_type, "sourceColumn": header, "summarizeBy": "none"}
+        if data_type in {"int64", "double"}:
+            column["formatString"] = "#,0" if data_type == "int64" else "0.00"
+        columns.append(column)
     return {
         "name": name,
-        "columns": [{"name": header, "dataType": types.get(header, "string"), "sourceColumn": header,
-                     "summarizeBy": "none"} for header in headers],
+        "columns": columns,
         "measures": [{"name": title, "expression": dax, "formatString": fmt}
                      for title, dax, fmt in MEASURES.get(name, [])],
         "partitions": [{"name": name, "mode": "import", "source": {"type": "m", "expression": query}}],
     }
 
 
-def generate(data_folder: Path, output: Path) -> Path:
+def generate(data_folder: Path, output: Path, data_url: str | None = None) -> Path:
     data_folder = data_folder.resolve()
     if not (data_folder / "benchmark.csv").exists():
         write_csv(data_folder / "benchmark.csv", [], [
@@ -133,7 +148,7 @@ def generate(data_folder: Path, output: Path) -> Path:
     context = json.loads((data_folder / "context.json").read_text(encoding="utf-8"))
     report = output / "KPI_Autopsy.Report"
     semantic_model = output / "KPI_Autopsy.SemanticModel"
-    tables = [model_table(name, filename, types, data_folder) for name, (filename, types) in TABLES.items()]
+    tables = [model_table(name, filename, types, data_folder, data_url) for name, (filename, types) in TABLES.items()]
     relationships = []
     for many, column, one, key, both in [
         ("Evidence", "application_id", "Cases", "application_id", True),
@@ -143,14 +158,17 @@ def generate(data_folder: Path, output: Path) -> Path:
         relationships.append({
             "name": str(uuid.uuid5(uuid.NAMESPACE_URL, f"kpi-autopsy/{many}/{column}/{one}/{key}")),
             "fromTable": many, "fromColumn": column, "toTable": one, "toColumn": key,
+            "fromCardinality": "many", "toCardinality": "one", "isActive": True,
             "crossFilteringBehavior": "bothDirections" if both else "oneDirection",
         })
-    folder_expression = '"' + data_folder.as_posix().replace('"', '""') + '" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]'
+    parameter_name = "DataFolder" if data_url is None else "DataUrl"
+    parameter_value = data_folder.as_posix() if data_url is None else data_url.rstrip("/") + "/"
+    parameter_expression = '"' + parameter_value.replace('"', '""') + '" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]'
     write_json(semantic_model / "model.bim", {
         "name": "KPI_Autopsy", "compatibilityLevel": 1600,
         "model": {"culture": "en-US", "defaultPowerBIDataSourceVersion": "powerBI_V3",
                   "tables": tables, "relationships": relationships,
-                  "expressions": [{"name": "DataFolder", "kind": "m", "expression": folder_expression}]},
+                  "expressions": [{"name": parameter_name, "kind": "m", "expression": parameter_expression}]},
     })
     write_json(semantic_model / "definition.pbism", {
         "$schema": SCHEMA + "item/semanticModel/definitionProperties/1.0.0/schema.json",
@@ -170,8 +188,9 @@ def generate(data_folder: Path, output: Path) -> Path:
     def card(name, title, table, measure, x):
         return visual(name, "card", title, (x, 108, 400, 112), {"Values": [field(table, measure, measure=True)]})
 
-    def table(name, title, table_name, columns, position):
-        return visual(name, "tableEx", title, position, {"Values": [field(table_name, column) for column in columns]})
+    def table(name, title, table_name, columns, position, sort=None):
+        return visual(name, "tableEx", title, position, {"Values": [field(table_name, column) for column in columns]},
+                      [field(table_name, column)["field"] for column in sort] if sort else None)
 
     subtitle = f"Intake {context['start'][:10]} to {context['end'][:10]} (end exclusive) | Observed through {context['as_of']} | UTC"
     pages = {
@@ -181,7 +200,8 @@ def generate(data_folder: Path, output: Path) -> Path:
             card("delay", "Mean time to first offer (calendar hours)", "Cases", "Mean first-offer hours", 440),
             card("backlog", "Open applications under the declared state rule", "Cases", "Open applications", 856),
             visual("monthly_share", "lineChart", "Accepted-offer share by intake month", (24, 244, 744, 412),
-                   {"Category": [field("Cases", "created_month")], "Y": [field("Cases", "Accepted-offer share", measure=True)]}),
+                   {"Category": [field("Cases", "created_month")], "Y": [field("Cases", "Accepted-offer share", measure=True)]},
+                   [field("Cases", "created_month")["field"]]),
             visual("cohorts", "tableEx", "Compare loan purposes", (792, 244, 464, 412), {"Values": [
                 field("Cases", "loan_goal"), field("Cases", "Applications", measure=True),
                 field("Cases", "Accepted-offer share", measure=True), field("Cases", "Mean first-offer hours", measure=True)]}),
@@ -193,13 +213,14 @@ def generate(data_folder: Path, output: Path) -> Path:
                   ["title", "status", "reported_value", "reference_value", "difference", "unit", "affected_applications"], (24, 108, 1232, 220)),
             table("evidence", "Affected applications and their contributions", "Evidence",
                   ["report_id", "application_id", "reason", "reported_rows", "reference_rows", "reported_numerator", "reference_numerator", "offer_count"], (24, 352, 1232, 304)),
-            textbox("note", "Evidence before explanation", "The auditor compares records with a supplied metric contract. Candidate explanations do not establish stakeholder intent or a unique root cause.", 668),
+            textbox("note", "Read the gap in the right unit", "Rate differences are percentage points. Other differences keep the metric's unit. Use an application ID from the table to look up its events on page 3.", 668),
         ]),
         "events": ("03 Source records", [
             textbox("heading", "Follow an application to its source events", "Select an application, then inspect its timestamps, lifecycle and offer IDs. Events are bounded by the export cutoff."),
             visual("application", "slicer", "Application ID", (24, 108, 360, 548), {"Values": [field("Cases", "application_id")]}),
             table("events", "Source event history", "Events",
-                  ["application_id", "occurred_at", "activity", "lifecycle", "offer_id", "source_event_id"], (408, 108, 848, 548)),
+                  ["application_id", "occurred_at", "event_row", "activity", "lifecycle", "offer_id", "source_event_id"],
+                  (408, 108, 848, 548), ["occurred_at", "event_row"]),
             textbox("note", "A row can be traced", "event_row is the stable position in the pinned XES file; source_event_id and the original timezone-bearing timestamp are retained in the export.", 668),
         ]),
         "evaluation": ("04 Evaluation", [

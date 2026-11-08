@@ -1,0 +1,34 @@
+{
+  "tables": [
+    {
+      "file": "cases.csv.gz",
+      "rows": 31509,
+      "sha256": "871a559326d7dee0f0cf9a76b8702cd49eeb74ebdbbd34c0f4fb8efb07a768d0"
+    },
+    {
+      "file": "audit_reports.csv.gz",
+      "rows": 7,
+      "sha256": "5a045f9289330acb5b1b2148c79256a7dddf13482e62cd8be72f807cec078b13"
+    },
+    {
+      "file": "case_evidence.csv.gz",
+      "rows": 37231,
+      "sha256": "f4381ede19f56ce4ee09cfc8950ea2c57b5bf5a7963e2f2a8f14b4dab0ad4a35"
+    },
+    {
+      "file": "events.csv.gz",
+      "rows": 1202267,
+      "sha256": "ac4f455f087c86358e8a9462c16ca78fc37b6d6e0dada30588792be7fd7cac3c"
+    },
+    {
+      "file": "benchmark.csv.gz",
+      "rows": 56,
+      "sha256": "434b54f96b18e9ba9d1de15b2c91e2c1231b83a518be8e055e05746b8fe9757e"
+    },
+    {
+      "file": "context.csv.gz",
+      "rows": 1,
+      "sha256": "db8dcd45755d3219aa1f59a615b19e359f3ffcc801ec8fdcb15def07f7300fb6"
+    }
+  ]
+}

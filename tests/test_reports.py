@@ -36,6 +36,15 @@ class ReportTests(DataCase):
         self.assertTrue(project.is_file())
         model = json.loads((self.root / "powerbi/KPI_Autopsy.SemanticModel/model.bim").read_text())["model"]
         tables = {table["name"]: table for table in model["tables"]}
+        self.assertEqual(model["expressions"][0]["name"], "DataFolder")
+        for table in tables.values():
+            self.assertIn("File.Contents(DataFolder", "\n".join(table["partitions"][0]["source"]["expression"]))
+        for relationship in model["relationships"]:
+            self.assertEqual(relationship["fromCardinality"], "many")
+            self.assertEqual(relationship["toCardinality"], "one")
+            self.assertTrue(relationship["isActive"])
+        audit_columns = {column["name"]: column for column in tables["Audits"]["columns"]}
+        self.assertEqual(audit_columns["reported_value"]["formatString"], "0.00")
         for path in (self.root / "powerbi/KPI_Autopsy.Report/definition/pages").glob("*/page.json"):
             page = json.loads(path.read_text())
             for visual_path in path.parent.glob("visuals/*/visual.json"):
@@ -51,6 +60,35 @@ class ReportTests(DataCase):
                         table = tables[binding["Expression"]["SourceRef"]["Entity"]]
                         names = {field["name"] for field in table["measures" if kind == "Measure" else "columns"]}
                         self.assertIn(binding["Property"], names)
+
+    def test_published_report_uses_remote_gzip_data_and_preserves_chronological_sort(self):
+        export_reports(self.connection, self.cohort, self.root / "reports")
+        output = self.root / "published"
+        generate(self.root / "reports" / "powerbi", output, "https://example.org/report-data")
+        model_text = (output / "KPI_Autopsy.SemanticModel/model.bim").read_text()
+        model = json.loads(model_text)["model"]
+        self.assertNotIn(self.root.as_posix(), model_text)
+        self.assertNotIn("DataFolder", model_text)
+        self.assertEqual(model["expressions"][0]["name"], "DataUrl")
+        self.assertIn('"https://example.org/report-data/"', model["expressions"][0]["expression"])
+        for table in model["tables"]:
+            query = "\n".join(table["partitions"][0]["source"]["expression"])
+            self.assertIn("Binary.Decompress(Web.Contents(DataUrl", query)
+            self.assertIn('.csv.gz"]), Compression.GZip)', query)
+            self.assertNotIn("File.Contents", query)
+        pages = output / "KPI_Autopsy.Report/definition/pages"
+        for page, name, expected in [
+            ("events", "events", ["occurred_at", "event_row"]),
+            ("overview", "monthly_share", ["created_month"]),
+        ]:
+            visual = json.loads((pages / page / "visuals" / name / "visual.json").read_text())["visual"]
+            sort = visual["query"]["sortDefinition"]
+            self.assertFalse(sort["isDefaultSort"])
+            self.assertEqual([item["field"]["Column"]["Property"] for item in sort["sort"]], expected)
+            self.assertTrue(all(item["direction"] == "Ascending" for item in sort["sort"]))
+            projected = [projection["field"] for role in visual["query"]["queryState"].values()
+                         for projection in role["projections"]]
+            self.assertTrue(all(item["field"] in projected for item in sort["sort"]))
 
     def test_empty_cohort_does_not_write_partial_reports(self):
         empty = Cohort.create("2015-01-01", "2015-02-01", self.cutoff)

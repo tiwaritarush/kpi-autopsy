@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kpi-autopsy"
+version = "0.1.0"
+description = "Reconcile banking metrics against their definitions and source records."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+validation = ["jsonschema==4.25.1"]
+
+[project.scripts]
+kpi-autopsy = "kpi_autopsy.cli:main"
+
+[tool.setuptools.package-data]
+kpi_autopsy = ["sql/*.sql"]
+
+[tool.setuptools.packages.find]
+include = ["kpi_autopsy*"]

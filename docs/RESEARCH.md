@@ -16,7 +16,7 @@ Pinned compressed-file SHA-256:
 183c5e5189282779c811c78c33ff936351b3dd201165d612211fc220936f8249
 ```
 
-The downloader checks this fingerprint. The dataset is separate from the MIT-licensed project code and is not bundled into the source ZIP.
+The downloader checks this fingerprint. The original XES file is not bundled. The shared report includes derived CSV exports under the publisher's terms, separate from the MIT-licensed code; their attribution is in `powerbi/data/README.md`.
 
 ## Aggregate explanations
 

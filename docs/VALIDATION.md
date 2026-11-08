@@ -18,10 +18,6 @@ CodeRabbit completed its review on 8 November 2026. The CLI returned `status: re
 
 The review used the uncommitted-change scope. Raw data, the SQLite database, generated reports and credentials were excluded. There were no review findings to address, so no code changes or follow-up review were needed. A completed review is another check, not a guarantee that the program has no defects.
 
-## Remaining verification
-
-- Open and refresh the generated project in Power BI Desktop, then inspect all four pages. Desktop was unavailable here; native M/DAX execution and visual rendering are unverified.
-
 The evaluation demonstrates the four documented fault families. It is not evidence of general accuracy on arbitrary SQL, unknown error families or unapproved business definitions.
 
 ## Shared report, 9 November 2026
@@ -29,8 +25,16 @@ The evaluation demonstrates the four documented fault families. It is not eviden
 The repository now includes the editable four-page report and all six compressed data tables. Its data URL points to commit `b990a4b725ae512759c3ff2aae9f66eb75ddf735`, rather than a local machine path or a changing branch.
 
 - All 25 tests passed, including the real-data regression and remote-source generation checks.
-- All 31 schema-bearing report files passed Microsoft's schemas. Field bindings, page bounds, numeric formats and chronological sorting were also checked.
+- All 32 schema-bearing report files passed Microsoft's schemas. Field bindings, page bounds, numeric formats and chronological sorting were also checked.
 - The six compressed files decompress exactly to their original CSV exports. Independent checks confirmed the three KPIs, 32 detected faults, 24 clean controls and zero false alarms or misses.
 - All six public data downloads returned HTTP 200 and matched the manifest's SHA-256 fingerprints.
 
 A CodeRabbit review was attempted for the generator and packaging changes. The service rejected the Git-provider authentication before analysis; no new external review result was produced. The earlier completed review above covers the earlier source version.
+
+## Native Power BI Desktop check
+
+Checked with Desktop 2.159.1231.0 on 9 November 2026. The full local CSV refresh completed, all four pages rendered, and report-to-evidence and application-to-event filtering worked. Native execution exposed and resolved a reserved DAX table name and missing report-format metadata that schema checks alone had missed.
+
+The final native-saved PBIX was reopened independently. Its six partitions remained ready, all 11 measures compiled, and its saved snapshot contained 31,509 applications and 1,202,267 events. Native measures returned 54.6764416516% accepted-offer share, 37.3886365343 first-offer hours, 98 open applications, 32 detected faults and zero false alarms. The source metadata uses the pinned GitHub gzip exports and contains no local file paths.
+
+The online refresh still needs the user's manual Anonymous access confirmation; it has not been exercised end to end. The delivered PBIX opens with its saved data. The PDF is a static preview of the report's visible tables, rather than a printout of every source row.

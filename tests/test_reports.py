@@ -45,6 +45,9 @@ class ReportTests(DataCase):
             self.assertTrue(relationship["isActive"])
         audit_columns = {column["name"]: column for column in tables["Audits"]["columns"]}
         self.assertEqual(audit_columns["reported_value"]["formatString"], "0.00")
+        for measure in tables["Cases"]["measures"]:
+            self.assertNotIn("Cases[", measure["expression"])
+            self.assertNotIn("COUNTROWS(Cases)", measure["expression"])
         for path in (self.root / "powerbi/KPI_Autopsy.Report/definition/pages").glob("*/page.json"):
             page = json.loads(path.read_text())
             for visual_path in path.parent.glob("visuals/*/visual.json"):
@@ -65,6 +68,14 @@ class ReportTests(DataCase):
         export_reports(self.connection, self.cohort, self.root / "reports")
         output = self.root / "published"
         generate(self.root / "reports" / "powerbi", output, "https://example.org/report-data")
+        report = output / "KPI_Autopsy.Report"
+        self.assertEqual(json.loads((report / "definition/version.json").read_text())["version"], "2.0.0")
+        platform = json.loads((report / ".platform").read_text())
+        self.assertEqual(platform["metadata"]["type"], "Report")
+        self.assertEqual(platform["config"]["version"], "2.0")
+        pages_metadata = json.loads((report / "definition/pages/pages.json").read_text())
+        self.assertTrue(pages_metadata["$schema"].endswith("pagesMetadata/1.1.0/schema.json"))
+        self.assertEqual(pages_metadata["activePageName"], pages_metadata["pageOrder"][0])
         model_text = (output / "KPI_Autopsy.SemanticModel/model.bim").read_text()
         model = json.loads(model_text)["model"]
         self.assertNotIn(self.root.as_posix(), model_text)

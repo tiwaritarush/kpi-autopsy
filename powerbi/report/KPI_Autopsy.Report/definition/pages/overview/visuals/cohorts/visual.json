@@ -56,20 +56,6 @@
               },
               "queryRef": "Cases.Accepted-offer share",
               "displayName": "Accepted-offer share"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "Cases"
-                    }
-                  },
-                  "Property": "Mean first-offer hours"
-                }
-              },
-              "queryRef": "Cases.Mean first-offer hours",
-              "displayName": "Mean first-offer hours"
             }
           ]
         }

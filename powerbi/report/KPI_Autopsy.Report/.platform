@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "KPI Autopsy"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "ced6d91f-4b14-52d4-b1ca-edd0a75b9c5b"
+  }
+}

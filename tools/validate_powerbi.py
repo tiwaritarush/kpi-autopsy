@@ -8,11 +8,13 @@ from referencing import Registry, Resource
 
 BASE = "https://developer.microsoft.com/json-schemas/"
 SCHEMAS = [
+    "fabric/gitIntegration/platformProperties/2.0.0/schema.json",
     "fabric/pbip/pbipProperties/1.0.0/schema.json",
     "fabric/item/semanticModel/definitionProperties/1.0.0/schema.json",
     "fabric/item/report/definitionProperties/2.0.0/schema.json",
+    "fabric/item/report/definition/pagesMetadata/1.1.0/schema.json",
     *[f"fabric/item/report/definition/{name}/1.0.0/schema.json" for name in (
-        "report", "page", "pagesMetadata", "versionMetadata", "visualContainer",
+        "report", "page", "versionMetadata", "visualContainer",
         "semanticQuery", "formattingObjectDefinitions",
     )],
 ]
@@ -35,7 +37,7 @@ def main() -> None:
     registry = Registry().with_resources((url, Resource.from_contents(schema)) for url, schema in resources.items())
     checked = 0
     for path in sorted(args.project.rglob("*")):
-        if not path.is_file() or path.suffix not in {".json", ".pbip", ".pbir", ".pbism"}:
+        if not path.is_file() or (path.suffix not in {".json", ".pbip", ".pbir", ".pbism"} and path.name != ".platform"):
             continue
         document = json.loads(path.read_text(encoding="utf-8"))
         uri = document.get("$schema")

@@ -26,7 +26,9 @@ The evaluation has 32 fault cases and 24 clean controls across four cohorts and 
 
 ## Power BI
 
-The [four-page report](powerbi/) includes the complete data exports and an editable Power BI project. Open `powerbi/report/KPI_Autopsy.pbip` and refresh; it reads a fixed public data version without local paths. The [report guide](powerbi/README.md) explains each page.
+[Download the Power BI report](https://github.com/tiwaritarush/kpi-autopsy/releases/download/powerbi-v1/KPI_Autopsy.pbix) or view the [four-page PDF preview](powerbi/KPI_Autopsy_Report.pdf). The PBIX includes the full data snapshot and opens without a first refresh. Editable project files and a short [report guide](powerbi/) are included.
+
+![Report overview](powerbi/preview.png)
 
 ## Read the code
 

@@ -98,20 +98,6 @@
               },
               "queryRef": "Events.offer_id",
               "displayName": "Offer id"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "Events"
-                    }
-                  },
-                  "Property": "source_event_id"
-                }
-              },
-              "queryRef": "Events.source_event_id",
-              "displayName": "Source event id"
             }
           ]
         }

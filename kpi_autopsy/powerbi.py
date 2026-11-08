@@ -32,11 +32,11 @@ TABLES = {
 
 MEASURES = {
     "Cases": [
-        ("Applications", "CALCULATE(COUNTROWS(Cases), Cases[in_cohort] = 1)", "#,0"),
-        ("Accepted applications", "CALCULATE(SUM(Cases[accepted_offer]), Cases[in_cohort] = 1)", "#,0"),
+        ("Applications", "CALCULATE(COUNTROWS('Cases'), 'Cases'[in_cohort] = 1)", "#,0"),
+        ("Accepted applications", "CALCULATE(SUM('Cases'[accepted_offer]), 'Cases'[in_cohort] = 1)", "#,0"),
         ("Accepted-offer share", "DIVIDE([Accepted applications], [Applications])", "0.00%"),
-        ("Mean first-offer hours", "CALCULATE(AVERAGE(Cases[first_offer_hours]), Cases[in_cohort] = 1)", "0.00"),
-        ("Open applications", "CALCULATE(SUM(Cases[is_open]), Cases[in_cohort] = 1)", "#,0"),
+        ("Mean first-offer hours", "CALCULATE(AVERAGE('Cases'[first_offer_hours]), 'Cases'[in_cohort] = 1)", "0.00"),
+        ("Open applications", "CALCULATE(SUM('Cases'[is_open]), 'Cases'[in_cohort] = 1)", "#,0"),
     ],
     "Evaluation": [
         ("Evaluation scenarios", "COUNTROWS(Evaluation)", "#,0"),
@@ -92,6 +92,8 @@ def visual(name: str, kind: str, title: str, position: tuple, roles: dict, sort:
             "sort": [{"field": binding, "direction": "Ascending"} for binding in sort],
             "isDefaultSort": False,
         }
+    if kind == "slicer":
+        result["visual"]["objects"] = {"general": [{"properties": {"selfFilterEnabled": expression(True)}}]}
     return result
 
 
@@ -103,6 +105,11 @@ def textbox(name: str, title: str, subtitle: str, y: int = 16) -> dict:
         {"textRuns": [{"value": title, "textStyle": {"fontSize": "22pt", "fontFace": "Segoe UI Semibold", "color": "#193750"}}]},
         {"textRuns": [{"value": subtitle, "textStyle": {"fontSize": "10pt", "fontFace": "Segoe UI", "color": "#526575"}}]},
     ]}}]}
+    if name == "note":
+        result["visual"]["objects"]["general"][0]["properties"]["paragraphs"].append({"textRuns": [{
+            "value": "Source: Boudewijn van Dongen (2017), BPI Challenge 2017, 4TU.ResearchData. doi:10.4121/uuid:5f3067df-f10b-45da-b98b-86ae4c7a310b",
+            "textStyle": {"fontSize": "8pt", "fontFace": "Segoe UI", "color": "#526575"},
+        }]})
     return result
 
 
@@ -128,6 +135,8 @@ def model_table(name: str, filename: str, types: dict, folder: Path, data_url: s
         column = {"name": header, "dataType": data_type, "sourceColumn": header, "summarizeBy": "none"}
         if data_type in {"int64", "double"}:
             column["formatString"] = "#,0" if data_type == "int64" else "0.00"
+        if header == "event_row":
+            column["formatString"] = "0"
         columns.append(column)
     return {
         "name": name,
@@ -178,15 +187,25 @@ def generate(data_folder: Path, output: Path, data_url: str | None = None) -> Pa
         "$schema": SCHEMA + "item/report/definitionProperties/2.0.0/schema.json",
         "version": "4.0", "datasetReference": {"byPath": {"path": "../KPI_Autopsy.SemanticModel"}},
     })
+    write_json(report / ".platform", {
+        "$schema": SCHEMA + "gitIntegration/platformProperties/2.0.0/schema.json",
+        "metadata": {"type": "Report", "displayName": "KPI Autopsy"},
+        "config": {"version": "2.0", "logicalId": str(uuid.uuid5(uuid.NAMESPACE_URL, "kpi-autopsy/report"))},
+    })
     definition = report / "definition"
-    write_json(definition / "version.json", {"$schema": REPORT_SCHEMA + "versionMetadata/1.0.0/schema.json", "version": "1.0.0"})
+    write_json(definition / "version.json", {"$schema": REPORT_SCHEMA + "versionMetadata/1.0.0/schema.json", "version": "2.0.0"})
     write_json(definition / "report.json", {
         "$schema": REPORT_SCHEMA + "report/1.0.0/schema.json", "layoutOptimization": "None",
         "themeCollection": {"baseTheme": {"name": "CY24SU06", "reportVersionAtImport": "5.55", "type": "SharedResources"}},
     })
 
     def card(name, title, table, measure, x):
-        return visual(name, "card", title, (x, 108, 400, 112), {"Values": [field(table, measure, measure=True)]})
+        result = visual(name, "card", title, (x, 108, 400, 112), {"Values": [field(table, measure, measure=True)]})
+        result["visual"]["objects"] = {
+            "categoryLabels": [{"properties": {"show": expression(False)}}],
+            "labels": [{"properties": {"fontSize": expression(32), "labelDisplayUnits": expression(1)}}],
+        }
+        return result
 
     def table(name, title, table_name, columns, position, sort=None):
         return visual(name, "tableEx", title, position, {"Values": [field(table_name, column) for column in columns]},
@@ -204,7 +223,7 @@ def generate(data_folder: Path, output: Path, data_url: str | None = None) -> Pa
                    [field("Cases", "created_month")["field"]]),
             visual("cohorts", "tableEx", "Compare loan purposes", (792, 244, 464, 412), {"Values": [
                 field("Cases", "loan_goal"), field("Cases", "Applications", measure=True),
-                field("Cases", "Accepted-offer share", measure=True), field("Cases", "Mean first-offer hours", measure=True)]}),
+                field("Cases", "Accepted-offer share", measure=True)]}),
             textbox("note", "Definitions matter", "Accepted offer is an observed event outcome. Turnaround covers offered applications; backlog follows a declared event-state rule.", 668),
         ]),
         "audits": ("02 Investigate", [
@@ -219,7 +238,7 @@ def generate(data_folder: Path, output: Path, data_url: str | None = None) -> Pa
             textbox("heading", "Follow an application to its source events", "Select an application, then inspect its timestamps, lifecycle and offer IDs. Events are bounded by the export cutoff."),
             visual("application", "slicer", "Application ID", (24, 108, 360, 548), {"Values": [field("Cases", "application_id")]}),
             table("events", "Source event history", "Events",
-                  ["application_id", "occurred_at", "event_row", "activity", "lifecycle", "offer_id", "source_event_id"],
+                  ["application_id", "occurred_at", "event_row", "activity", "lifecycle", "offer_id"],
                   (408, 108, 848, 548), ["occurred_at", "event_row"]),
             textbox("note", "A row can be traced", "event_row is the stable position in the pinned XES file; source_event_id and the original timezone-bearing timestamp are retained in the export.", 668),
         ]),
@@ -243,7 +262,7 @@ def generate(data_folder: Path, output: Path, data_url: str | None = None) -> Pa
         for item in visuals:
             write_json(page_dir / "visuals" / item["name"] / "visual.json", item)
     write_json(definition / "pages" / "pages.json", {
-        "$schema": REPORT_SCHEMA + "pagesMetadata/1.0.0/schema.json",
+        "$schema": REPORT_SCHEMA + "pagesMetadata/1.1.0/schema.json",
         "pageOrder": list(pages), "activePageName": "overview",
     })
     project = output / "KPI_Autopsy.pbip"

@@ -121,12 +121,12 @@
         "measures": [
           {
             "name": "Applications",
-            "expression": "CALCULATE(COUNTROWS(Cases), Cases[in_cohort] = 1)",
+            "expression": "CALCULATE(COUNTROWS('Cases'), 'Cases'[in_cohort] = 1)",
             "formatString": "#,0"
           },
           {
             "name": "Accepted applications",
-            "expression": "CALCULATE(SUM(Cases[accepted_offer]), Cases[in_cohort] = 1)",
+            "expression": "CALCULATE(SUM('Cases'[accepted_offer]), 'Cases'[in_cohort] = 1)",
             "formatString": "#,0"
           },
           {
@@ -136,12 +136,12 @@
           },
           {
             "name": "Mean first-offer hours",
-            "expression": "CALCULATE(AVERAGE(Cases[first_offer_hours]), Cases[in_cohort] = 1)",
+            "expression": "CALCULATE(AVERAGE('Cases'[first_offer_hours]), 'Cases'[in_cohort] = 1)",
             "formatString": "0.00"
           },
           {
             "name": "Open applications",
-            "expression": "CALCULATE(SUM(Cases[is_open]), Cases[in_cohort] = 1)",
+            "expression": "CALCULATE(SUM('Cases'[is_open]), 'Cases'[in_cohort] = 1)",
             "formatString": "#,0"
           }
         ],
@@ -378,7 +378,7 @@
             "dataType": "int64",
             "sourceColumn": "event_row",
             "summarizeBy": "none",
-            "formatString": "#,0"
+            "formatString": "0"
           },
           {
             "name": "activity",

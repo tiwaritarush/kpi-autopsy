@@ -1,5 +1,7 @@
 # Power BI report
 
+Start with the [PBIX download](https://github.com/tiwaritarush/kpi-autopsy/releases/download/powerbi-v1/KPI_Autopsy.pbix). It includes the full saved snapshot. The [PDF](KPI_Autopsy_Report.pdf) is a static preview; use Desktop to filter and scroll through the data.
+
 Open `report/KPI_Autopsy.pbip` in the current Power BI Desktop and select **Refresh**. Choose **Anonymous** if asked for access to `raw.githubusercontent.com`. No Python setup or local data path is needed for this copy.
 
 The data URL is pinned to a Git commit. Refreshing loads the same six compressed CSV exports, including all 1,202,267 source events. The [data folder](data/) includes row counts, checksums and the original dataset attribution.
@@ -12,6 +14,8 @@ The data URL is pinned to a Git commit. Refreshing loads the same six compressed
 4. **Evaluation:** all 56 cases, including clean controls. The result covers four known fault families, not arbitrary SQL.
 
 For a quick walkthrough, compare **Accepted at the wrong stage** with the reference. The reported 100% becomes 54.68% when acceptance means an observed `O_Accepted` event. Pick an affected application ID and look it up on page 3.
+
+The PBIX starts the source page with `Application_1012695759`, a 15-event example with `A_Accepted` and later `A_Denied` / `O_Refused`, without `O_Accepted`. Clear the search and selection to inspect another application.
 
 With no selections, the Overview should show **54.68%**, **37.39 calendar hours** and **98 open applications**. Its cohort is the 2016 intake, observed through 1 February 2017. These are prototype definitions, not the source bank's approved operating metrics.
 

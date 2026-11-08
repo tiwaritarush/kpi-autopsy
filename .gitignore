@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+.test-tmp/
+*.egg-info/
+data/
+reports/
+powerbi/generated/
+.pbi/
+.DS_Store
+Thumbs.db

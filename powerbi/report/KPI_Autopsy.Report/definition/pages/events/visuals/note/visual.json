@@ -1,0 +1,49 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "note",
+  "position": {
+    "x": 24,
+    "y": 668,
+    "z": 0,
+    "width": 1232,
+    "height": 76,
+    "tabOrder": 668.0024
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "A row can be traced",
+                    "textStyle": {
+                      "fontSize": "22pt",
+                      "fontFace": "Segoe UI Semibold",
+                      "color": "#193750"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "event_row is the stable position in the pinned XES file; source_event_id and the original timezone-bearing timestamp are retained in the export.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "fontFace": "Segoe UI",
+                      "color": "#526575"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

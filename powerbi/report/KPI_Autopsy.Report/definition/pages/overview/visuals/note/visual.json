@@ -1,0 +1,49 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "note",
+  "position": {
+    "x": 24,
+    "y": 668,
+    "z": 0,
+    "width": 1232,
+    "height": 76,
+    "tabOrder": 668.0024
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Definitions matter",
+                    "textStyle": {
+                      "fontSize": "22pt",
+                      "fontFace": "Segoe UI Semibold",
+                      "color": "#193750"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Accepted offer is an observed event outcome. Turnaround covers offered applications; backlog follows a declared event-state rule.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "fontFace": "Segoe UI",
+                      "color": "#526575"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

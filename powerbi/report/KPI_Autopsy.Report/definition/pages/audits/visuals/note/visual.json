@@ -1,0 +1,49 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "note",
+  "position": {
+    "x": 24,
+    "y": 668,
+    "z": 0,
+    "width": 1232,
+    "height": 76,
+    "tabOrder": 668.0024
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Read the gap in the right unit",
+                    "textStyle": {
+                      "fontSize": "22pt",
+                      "fontFace": "Segoe UI Semibold",
+                      "color": "#193750"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Rate differences are percentage points. Other differences keep the metric's unit. Use an application ID from the table to look up its events on page 3.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "fontFace": "Segoe UI",
+                      "color": "#526575"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

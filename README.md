@@ -26,10 +26,10 @@ The evaluation has 32 fault cases and 24 clean controls across four cohorts and 
 
 ## Power BI
 
-Open `powerbi/generated/KPI_Autopsy.pbip` and refresh in Power BI Desktop. Rebuild after moving the folder. The four report pages pass schema and binding checks; native Desktop refresh and rendering remain unverified.
+The [four-page report](powerbi/) includes the complete data exports and an editable Power BI project. Open `powerbi/report/KPI_Autopsy.pbip` and refresh; it reads a fixed public data version without local paths. The [report guide](powerbi/README.md) explains each page.
 
 ## Read the code
 
 Start with `kpi_autopsy/sql/accepted_offer_rate.sql`, then `metrics.py` and `audit.py`. See the [walkthrough](docs/WALKTHROUGH.md), [metric definitions](docs/METRICS.md), [user stories](docs/BUSINESS_BRIEF.md) and [sources](docs/RESEARCH.md).
 
-Data and generated files are ignored by Git. MIT-licensed code; the dataset keeps its publisher's terms.
+Raw data, the database and local build outputs are ignored by Git. The shared report exports are included under the dataset publisher's terms; code is MIT-licensed.

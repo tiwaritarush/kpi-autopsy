@@ -94,7 +94,7 @@ Clean queries count as negative controls. Equivalent wrapped SQL checks that sup
 
 ## 9. Open the Power BI report
 
-Build the project, open `powerbi/generated/KPI_Autopsy.pbip` and refresh. Read the Overview page first, then select a report on Investigate and inspect its evidence. Source records lets you filter an application and review the full observed event history.
+Open `powerbi/report/KPI_Autopsy.pbip` and refresh to use the shared, fixed data version. For your own local build, use `powerbi/generated/KPI_Autopsy.pbip` instead. Read Overview first, then select a report on Investigate and inspect its evidence. Look up an affected application ID on Source records to review its full observed event history.
 
 The exported Cases table retains applications outside the requested intake cohort because those records may explain a wrong-population report. The `in_cohort` flag controls the overview measures. An unexpected application must remain inspectable without silently entering the reference denominator.
 

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "note",
+  "position": {
+    "x": 24,
+    "y": 668,
+    "z": 0,
+    "width": 1232,
+    "height": 76,
+    "tabOrder": 668.0024
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Read the scope with the score",
+                    "textStyle": {
+                      "fontSize": "22pt",
+                      "fontFace": "Segoe UI Semibold",
+                      "color": "#193750"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Unexercised faults remain visible. Scores cover known error families and separate cohorts, not arbitrary SQL or unseen business rules.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "fontFace": "Segoe UI",
+                      "color": "#526575"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

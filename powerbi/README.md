@@ -1,47 +1,24 @@
 # Power BI report
 
-Run the project build, then open `generated/KPI_Autopsy.pbip` in a current Power BI Desktop release and select **Refresh**. If you moved the repository, rebuild first so that the `DataFolder` parameter points to the new exports.
+Open `report/KPI_Autopsy.pbip` in the current Power BI Desktop and select **Refresh**. Choose **Anonymous** if asked for access to `raw.githubusercontent.com`. No Python setup or local data path is needed for this copy.
 
-The report is generated as editable PBIP/PBIR files with a JSON semantic model. No account, workspace upload or publishing step is needed for local analysis.
+The data URL is pinned to a Git commit. Refreshing loads the same six compressed CSV exports, including all 1,202,267 source events. The [data folder](data/) includes row counts, checksums and the original dataset attribution.
 
-## Pages
+## Four pages
 
-1. **Overview:** accepted-offer share, first-offer calendar hours, declared open backlog, monthly intake cohorts and loan-purpose comparisons.
-2. **Investigate:** fixed-cohort report comparisons and their per-application evidence. Select a report to filter its evidence.
-3. **Source records:** select an application and inspect its observed events, lifecycle and offer IDs.
-4. **Evaluation:** scenario coverage, recall, clean-report false alarms and every recorded evaluation case.
+1. **Overview:** the three reference KPIs, monthly acceptance and loan-purpose comparisons.
+2. **Investigate:** select a report row to see which applications changed its result. Percentage-rate gaps are percentage points.
+3. **Source records:** find an application ID in the slicer and follow its events in timestamp order. `event_row` breaks timestamp ties and traces back to the source file.
+4. **Evaluation:** all 56 cases, including clean controls. The result covers four known fault families, not arbitrary SQL.
 
-The neutral blue and white layout uses 24-pixel page margins, aligned metric cards and consistent table positions. All generated visuals are checked to remain inside the page bounds.
+For a quick walkthrough, compare **Accepted at the wrong stage** with the reference. The reported 100% becomes 54.68% when acceptance means an observed `O_Accepted` event. Pick an affected application ID and look it up on page 3.
 
-## Model
+With no selections, the Overview should show **54.68%**, **37.39 calendar hours** and **98 open applications**. Its cohort is the 2016 intake, observed through 1 February 2017. These are prototype definitions, not the source bank's approved operating metrics.
 
-Cases is one row per snapshot application. Audits is one row per submitted demo report. Evidence can contain the same application in several reports. Events contains the full observed event history. Evaluation contains scenario results, while Context retains the export boundaries and fingerprint.
+## Build your own copy
 
-The model relationships are:
+`python -m kpi_autopsy build` creates `generated/KPI_Autopsy.pbip`, using your local CSV exports. Rebuild after moving the repository. Save a separate copy before customizing it: the generator overwrites its output.
 
-```text
-Audits 1 -> many Evidence many <-> 1 Cases 1 -> many Events
-```
+The model follows `Audits → Evidence ↔ Cases → Events`. One bidirectional relationship connects evidence to applications; there is no second filter path. Overview measures always apply `in_cohort = 1`. Selecting a visual does not rerun the Python audit.
 
-The single bidirectional relationship lets an evidence selection identify its application. There are no additional relationship paths between these tables. Evaluation and Context are independent.
-
-Cases retains outside-cohort applications when they exist in the snapshot. The overview DAX measures explicitly filter `in_cohort = 1`; outside-cohort evidence remains available for investigating a wrong-population report.
-
-Audit values are calculated for the export's fixed cohort. Overview selections do not rerun the Python audit. The Evidence table keeps report IDs visible when multiple report results are displayed together.
-
-## Validate the file format
-
-The optional validator uses Microsoft's published schemas:
-
-```console
-python -m pip install -e ".[validation]"
-python tools/validate_powerbi.py
-```
-
-The core analysis does not need this dependency. Schema validation checks the report structure; unit tests check field bindings and page bounds. Neither substitutes for opening and refreshing the semantic model in Desktop.
-
-Power BI Desktop was unavailable in the build environment, so native opening, M/DAX execution, refresh and visual inspection remain unverified. If Desktop reports an import issue, keep the generated files and report the exact message rather than editing the verified CSV data.
-
-## Keep a customized report
-
-The generator overwrites its own `generated/` output. Save a copy elsewhere before customizing it in Desktop. Refreshing the CSV source does not require regenerating the report definition, so a customized copy can continue using the exported data folder.
+See the [validation record](../docs/VALIDATION.md) for the checks performed and their limits.

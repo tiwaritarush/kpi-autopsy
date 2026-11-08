@@ -1,0 +1,667 @@
+{
+  "name": "KPI_Autopsy",
+  "compatibilityLevel": 1600,
+  "model": {
+    "culture": "en-US",
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "tables": [
+      {
+        "name": "Cases",
+        "columns": [
+          {
+            "name": "application_id",
+            "dataType": "string",
+            "sourceColumn": "application_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "application_type",
+            "dataType": "string",
+            "sourceColumn": "application_type",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "loan_goal",
+            "dataType": "string",
+            "sourceColumn": "loan_goal",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "requested_amount",
+            "dataType": "double",
+            "sourceColumn": "requested_amount",
+            "summarizeBy": "none",
+            "formatString": "0.00"
+          },
+          {
+            "name": "created_at",
+            "dataType": "string",
+            "sourceColumn": "created_at",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "created_month",
+            "dataType": "string",
+            "sourceColumn": "created_month",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "first_offer_at",
+            "dataType": "string",
+            "sourceColumn": "first_offer_at",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "accepted_offer_at",
+            "dataType": "string",
+            "sourceColumn": "accepted_offer_at",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "application_stage_at",
+            "dataType": "string",
+            "sourceColumn": "application_stage_at",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "last_event_at",
+            "dataType": "string",
+            "sourceColumn": "last_event_at",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "last_application_activity",
+            "dataType": "string",
+            "sourceColumn": "last_application_activity",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "offer_count",
+            "dataType": "int64",
+            "sourceColumn": "offer_count",
+            "summarizeBy": "none",
+            "formatString": "#,0"
+          },
+          {
+            "name": "accepted_offer",
+            "dataType": "int64",
+            "sourceColumn": "accepted_offer",
+            "summarizeBy": "none",
+            "formatString": "#,0"
+          },
+          {
+            "name": "first_offer_hours",
+            "dataType": "double",
+            "sourceColumn": "first_offer_hours",
+            "summarizeBy": "none",
+            "formatString": "0.00"
+          },
+          {
+            "name": "is_open",
+            "dataType": "int64",
+            "sourceColumn": "is_open",
+            "summarizeBy": "none",
+            "formatString": "#,0"
+          },
+          {
+            "name": "age_days",
+            "dataType": "double",
+            "sourceColumn": "age_days",
+            "summarizeBy": "none",
+            "formatString": "0.00"
+          },
+          {
+            "name": "in_cohort",
+            "dataType": "int64",
+            "sourceColumn": "in_cohort",
+            "summarizeBy": "none",
+            "formatString": "#,0"
+          }
+        ],
+        "measures": [
+          {
+            "name": "Applications",
+            "expression": "CALCULATE(COUNTROWS(Cases), Cases[in_cohort] = 1)",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Accepted applications",
+            "expression": "CALCULATE(SUM(Cases[accepted_offer]), Cases[in_cohort] = 1)",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Accepted-offer share",
+            "expression": "DIVIDE([Accepted applications], [Applications])",
+            "formatString": "0.00%"
+          },
+          {
+            "name": "Mean first-offer hours",
+            "expression": "CALCULATE(AVERAGE(Cases[first_offer_hours]), Cases[in_cohort] = 1)",
+            "formatString": "0.00"
+          },
+          {
+            "name": "Open applications",
+            "expression": "CALCULATE(SUM(Cases[is_open]), Cases[in_cohort] = 1)",
+            "formatString": "#,0"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Cases",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(Binary.Decompress(Web.Contents(DataUrl, [RelativePath=\"cases.csv.gz\"]), Compression.GZip), [Delimiter=\",\", Columns=17, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    EmptyToNull = Table.ReplaceValue(Headers, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Headers)),",
+                "    Typed = Table.TransformColumnTypes(EmptyToNull, {{\"application_id\", type text}, {\"application_type\", type text}, {\"loan_goal\", type text}, {\"requested_amount\", type number}, {\"created_at\", type text}, {\"created_month\", type text}, {\"first_offer_at\", type text}, {\"accepted_offer_at\", type text}, {\"application_stage_at\", type text}, {\"last_event_at\", type text}, {\"last_application_activity\", type text}, {\"offer_count\", Int64.Type}, {\"accepted_offer\", Int64.Type}, {\"first_offer_hours\", type number}, {\"is_open\", Int64.Type}, {\"age_days\", type number}, {\"in_cohort\", Int64.Type}}, \"en-US\")",
+                "in Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Audits",
+        "columns": [
+          {
+            "name": "report_id",
+            "dataType": "string",
+            "sourceColumn": "report_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "title",
+            "dataType": "string",
+            "sourceColumn": "title",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "metric_id",
+            "dataType": "string",
+            "sourceColumn": "metric_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "status",
+            "dataType": "string",
+            "sourceColumn": "status",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "reported_value",
+            "dataType": "double",
+            "sourceColumn": "reported_value",
+            "summarizeBy": "none",
+            "formatString": "0.00"
+          },
+          {
+            "name": "reference_value",
+            "dataType": "double",
+            "sourceColumn": "reference_value",
+            "summarizeBy": "none",
+            "formatString": "0.00"
+          },
+          {
+            "name": "difference",
+            "dataType": "double",
+            "sourceColumn": "difference",
+            "summarizeBy": "none",
+            "formatString": "0.00"
+          },
+          {
+            "name": "unit",
+            "dataType": "string",
+            "sourceColumn": "unit",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "affected_applications",
+            "dataType": "int64",
+            "sourceColumn": "affected_applications",
+            "summarizeBy": "none",
+            "formatString": "#,0"
+          },
+          {
+            "name": "issue_codes",
+            "dataType": "string",
+            "sourceColumn": "issue_codes",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "explanation",
+            "dataType": "string",
+            "sourceColumn": "explanation",
+            "summarizeBy": "none"
+          }
+        ],
+        "measures": [],
+        "partitions": [
+          {
+            "name": "Audits",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(Binary.Decompress(Web.Contents(DataUrl, [RelativePath=\"audit_reports.csv.gz\"]), Compression.GZip), [Delimiter=\",\", Columns=11, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    EmptyToNull = Table.ReplaceValue(Headers, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Headers)),",
+                "    Typed = Table.TransformColumnTypes(EmptyToNull, {{\"report_id\", type text}, {\"title\", type text}, {\"metric_id\", type text}, {\"status\", type text}, {\"reported_value\", type number}, {\"reference_value\", type number}, {\"difference\", type number}, {\"unit\", type text}, {\"affected_applications\", Int64.Type}, {\"issue_codes\", type text}, {\"explanation\", type text}}, \"en-US\")",
+                "in Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Evidence",
+        "columns": [
+          {
+            "name": "report_id",
+            "dataType": "string",
+            "sourceColumn": "report_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "application_id",
+            "dataType": "string",
+            "sourceColumn": "application_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "reason",
+            "dataType": "string",
+            "sourceColumn": "reason",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "reported_rows",
+            "dataType": "int64",
+            "sourceColumn": "reported_rows",
+            "summarizeBy": "none",
+            "formatString": "#,0"
+          },
+          {
+            "name": "reference_rows",
+            "dataType": "int64",
+            "sourceColumn": "reference_rows",
+            "summarizeBy": "none",
+            "formatString": "#,0"
+          },
+          {
+            "name": "reported_numerator",
+            "dataType": "double",
+            "sourceColumn": "reported_numerator",
+            "summarizeBy": "none",
+            "formatString": "0.00"
+          },
+          {
+            "name": "reference_numerator",
+            "dataType": "double",
+            "sourceColumn": "reference_numerator",
+            "summarizeBy": "none",
+            "formatString": "0.00"
+          },
+          {
+            "name": "reported_denominator",
+            "dataType": "double",
+            "sourceColumn": "reported_denominator",
+            "summarizeBy": "none",
+            "formatString": "0.00"
+          },
+          {
+            "name": "reference_denominator",
+            "dataType": "double",
+            "sourceColumn": "reference_denominator",
+            "summarizeBy": "none",
+            "formatString": "0.00"
+          },
+          {
+            "name": "created_at",
+            "dataType": "string",
+            "sourceColumn": "created_at",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "first_offer_at",
+            "dataType": "string",
+            "sourceColumn": "first_offer_at",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "accepted_offer_at",
+            "dataType": "string",
+            "sourceColumn": "accepted_offer_at",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "offer_count",
+            "dataType": "int64",
+            "sourceColumn": "offer_count",
+            "summarizeBy": "none",
+            "formatString": "#,0"
+          }
+        ],
+        "measures": [],
+        "partitions": [
+          {
+            "name": "Evidence",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(Binary.Decompress(Web.Contents(DataUrl, [RelativePath=\"case_evidence.csv.gz\"]), Compression.GZip), [Delimiter=\",\", Columns=13, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    EmptyToNull = Table.ReplaceValue(Headers, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Headers)),",
+                "    Typed = Table.TransformColumnTypes(EmptyToNull, {{\"report_id\", type text}, {\"application_id\", type text}, {\"reason\", type text}, {\"reported_rows\", Int64.Type}, {\"reference_rows\", Int64.Type}, {\"reported_numerator\", type number}, {\"reference_numerator\", type number}, {\"reported_denominator\", type number}, {\"reference_denominator\", type number}, {\"created_at\", type text}, {\"first_offer_at\", type text}, {\"accepted_offer_at\", type text}, {\"offer_count\", Int64.Type}}, \"en-US\")",
+                "in Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Events",
+        "columns": [
+          {
+            "name": "application_id",
+            "dataType": "string",
+            "sourceColumn": "application_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "event_row",
+            "dataType": "int64",
+            "sourceColumn": "event_row",
+            "summarizeBy": "none",
+            "formatString": "#,0"
+          },
+          {
+            "name": "activity",
+            "dataType": "string",
+            "sourceColumn": "activity",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "event_origin",
+            "dataType": "string",
+            "sourceColumn": "event_origin",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "lifecycle",
+            "dataType": "string",
+            "sourceColumn": "lifecycle",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "occurred_at",
+            "dataType": "string",
+            "sourceColumn": "occurred_at",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "source_timestamp",
+            "dataType": "string",
+            "sourceColumn": "source_timestamp",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "offer_id",
+            "dataType": "string",
+            "sourceColumn": "offer_id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "source_event_id",
+            "dataType": "string",
+            "sourceColumn": "source_event_id",
+            "summarizeBy": "none"
+          }
+        ],
+        "measures": [],
+        "partitions": [
+          {
+            "name": "Events",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(Binary.Decompress(Web.Contents(DataUrl, [RelativePath=\"events.csv.gz\"]), Compression.GZip), [Delimiter=\",\", Columns=9, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    EmptyToNull = Table.ReplaceValue(Headers, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Headers)),",
+                "    Typed = Table.TransformColumnTypes(EmptyToNull, {{\"application_id\", type text}, {\"event_row\", Int64.Type}, {\"activity\", type text}, {\"event_origin\", type text}, {\"lifecycle\", type text}, {\"occurred_at\", type text}, {\"source_timestamp\", type text}, {\"offer_id\", type text}, {\"source_event_id\", type text}}, \"en-US\")",
+                "in Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Evaluation",
+        "columns": [
+          {
+            "name": "month",
+            "dataType": "string",
+            "sourceColumn": "month",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "scenario",
+            "dataType": "string",
+            "sourceColumn": "scenario",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "variant",
+            "dataType": "string",
+            "sourceColumn": "variant",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "expected_issue",
+            "dataType": "string",
+            "sourceColumn": "expected_issue",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "detected_issues",
+            "dataType": "string",
+            "sourceColumn": "detected_issues",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "has_fault",
+            "dataType": "int64",
+            "sourceColumn": "has_fault",
+            "summarizeBy": "none",
+            "formatString": "#,0"
+          },
+          {
+            "name": "exercised",
+            "dataType": "int64",
+            "sourceColumn": "exercised",
+            "summarizeBy": "none",
+            "formatString": "#,0"
+          },
+          {
+            "name": "passed",
+            "dataType": "int64",
+            "sourceColumn": "passed",
+            "summarizeBy": "none",
+            "formatString": "#,0"
+          },
+          {
+            "name": "affected_applications",
+            "dataType": "int64",
+            "sourceColumn": "affected_applications",
+            "summarizeBy": "none",
+            "formatString": "#,0"
+          },
+          {
+            "name": "query_ms",
+            "dataType": "double",
+            "sourceColumn": "query_ms",
+            "summarizeBy": "none",
+            "formatString": "0.00"
+          }
+        ],
+        "measures": [
+          {
+            "name": "Evaluation scenarios",
+            "expression": "COUNTROWS(Evaluation)",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Exercised faults",
+            "expression": "CALCULATE(COUNTROWS(Evaluation), Evaluation[has_fault] = 1, Evaluation[exercised] = 1)",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Detected faults",
+            "expression": "CALCULATE(COUNTROWS(Evaluation), Evaluation[has_fault] = 1, Evaluation[exercised] = 1, Evaluation[detected_issues] <> \"NONE\")",
+            "formatString": "#,0"
+          },
+          {
+            "name": "False alarms",
+            "expression": "COALESCE(CALCULATE(COUNTROWS(Evaluation), Evaluation[has_fault] = 0, Evaluation[detected_issues] <> \"NONE\"), 0)",
+            "formatString": "#,0"
+          },
+          {
+            "name": "Detection recall",
+            "expression": "DIVIDE([Detected faults], [Exercised faults])",
+            "formatString": "0.0%"
+          },
+          {
+            "name": "Detection precision",
+            "expression": "DIVIDE([Detected faults], [Detected faults] + [False alarms])",
+            "formatString": "0.0%"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Evaluation",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(Binary.Decompress(Web.Contents(DataUrl, [RelativePath=\"benchmark.csv.gz\"]), Compression.GZip), [Delimiter=\",\", Columns=10, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    EmptyToNull = Table.ReplaceValue(Headers, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Headers)),",
+                "    Typed = Table.TransformColumnTypes(EmptyToNull, {{\"month\", type text}, {\"scenario\", type text}, {\"variant\", type text}, {\"expected_issue\", type text}, {\"detected_issues\", type text}, {\"has_fault\", Int64.Type}, {\"exercised\", Int64.Type}, {\"passed\", Int64.Type}, {\"affected_applications\", Int64.Type}, {\"query_ms\", type number}}, \"en-US\")",
+                "in Typed"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Context",
+        "columns": [
+          {
+            "name": "start",
+            "dataType": "string",
+            "sourceColumn": "start",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "end",
+            "dataType": "string",
+            "sourceColumn": "end",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "as_of",
+            "dataType": "string",
+            "sourceColumn": "as_of",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "source_sha256",
+            "dataType": "string",
+            "sourceColumn": "source_sha256",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "timezone",
+            "dataType": "string",
+            "sourceColumn": "timezone",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "sample_event_scope",
+            "dataType": "string",
+            "sourceColumn": "sample_event_scope",
+            "summarizeBy": "none"
+          }
+        ],
+        "measures": [],
+        "partitions": [
+          {
+            "name": "Context",
+            "mode": "import",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Csv.Document(Binary.Decompress(Web.Contents(DataUrl, [RelativePath=\"context.csv.gz\"]), Compression.GZip), [Delimiter=\",\", Columns=6, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),",
+                "    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    EmptyToNull = Table.ReplaceValue(Headers, \"\", null, Replacer.ReplaceValue, Table.ColumnNames(Headers)),",
+                "    Typed = Table.TransformColumnTypes(EmptyToNull, {{\"start\", type text}, {\"end\", type text}, {\"as_of\", type text}, {\"source_sha256\", type text}, {\"timezone\", type text}, {\"sample_event_scope\", type text}}, \"en-US\")",
+                "in Typed"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "39fb066a-bdbf-5f57-a469-a9da0bd4ae6e",
+        "fromTable": "Evidence",
+        "fromColumn": "application_id",
+        "toTable": "Cases",
+        "toColumn": "application_id",
+        "fromCardinality": "many",
+        "toCardinality": "one",
+        "isActive": true,
+        "crossFilteringBehavior": "bothDirections"
+      },
+      {
+        "name": "8ce880eb-5ac2-5038-a626-c2aa4450d2a1",
+        "fromTable": "Evidence",
+        "fromColumn": "report_id",
+        "toTable": "Audits",
+        "toColumn": "report_id",
+        "fromCardinality": "many",
+        "toCardinality": "one",
+        "isActive": true,
+        "crossFilteringBehavior": "oneDirection"
+      },
+      {
+        "name": "f337afdd-8ff8-58e4-a4fd-04aa588639f1",
+        "fromTable": "Events",
+        "fromColumn": "application_id",
+        "toTable": "Cases",
+        "toColumn": "application_id",
+        "fromCardinality": "many",
+        "toCardinality": "one",
+        "isActive": true,
+        "crossFilteringBehavior": "oneDirection"
+      }
+    ],
+    "expressions": [
+      {
+        "name": "DataUrl",
+        "kind": "m",
+        "expression": "\"https://raw.githubusercontent.com/tiwaritarush/kpi-autopsy/b990a4b725ae512759c3ff2aae9f66eb75ddf735/powerbi/data/\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]"
+      }
+    ]
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "heading",
+  "position": {
+    "x": 24,
+    "y": 16,
+    "z": 0,
+    "width": 1232,
+    "height": 76,
+    "tabOrder": 16.0024
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Follow an application to its source events",
+                    "textStyle": {
+                      "fontSize": "22pt",
+                      "fontFace": "Segoe UI Semibold",
+                      "color": "#193750"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Select an application, then inspect its timestamps, lifecycle and offer IDs. Events are bounded by the export cutoff.",
+                    "textStyle": {
+                      "fontSize": "10pt",
+                      "fontFace": "Segoe UI",
+                      "color": "#526575"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.0.0/schema.json",
+  "name": "reports",
+  "position": {
+    "x": 24,
+    "y": 108,
+    "z": 0,
+    "width": 1232,
+    "height": 220,
+    "tabOrder": 108.0024
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Audits"
+                    }
+                  },
+                  "Property": "title"
+                }
+              },
+              "queryRef": "Audits.title",
+              "displayName": "Title"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Audits"
+                    }
+                  },
+                  "Property": "status"
+                }
+              },
+              "queryRef": "Audits.status",
+              "displayName": "Status"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Audits"
+                    }
+                  },
+                  "Property": "reported_value"
+                }
+              },
+              "queryRef": "Audits.reported_value",
+              "displayName": "Reported value"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Audits"
+                    }
+                  },
+                  "Property": "reference_value"
+                }
+              },
+              "queryRef": "Audits.reference_value",
+              "displayName": "Reference value"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Audits"
+                    }
+                  },
+                  "Property": "difference"
+                }
+              },
+              "queryRef": "Audits.difference",
+              "displayName": "Difference"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Audits"
+                    }
+                  },
+                  "Property": "unit"
+                }
+              },
+              "queryRef": "Audits.unit",
+              "displayName": "Unit"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Audits"
+                    }
+                  },
+                  "Property": "affected_applications"
+                }
+              },
+              "queryRef": "Audits.affected_applications",
+              "displayName": "Affected applications"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Reported and reconciled values \u2014 read the unit column'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#193750'"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "color": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#FFFFFF'"
+                    }
+                  }
+                }
+              }
+            },
+            "transparency": {
+              "expr": {
+                "Literal": {
+                  "Value": "0D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Reported and reconciled values \u2014 read the unit column'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
